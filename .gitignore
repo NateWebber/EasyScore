@@ -1,5 +1,7 @@
 /venv
 /images
 /audio
+/temp
+/dl
 
 *.mp4
