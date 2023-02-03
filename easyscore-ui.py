@@ -1,5 +1,6 @@
 import shutil
 import os
+import webbrowser
 import dearpygui.dearpygui as dpg
 from renderer import Renderer
 from es_enums import AudioSource, ImageSource
@@ -40,9 +41,13 @@ def render_video():
     # instantiate renderer and render video
     renderer = Renderer(selected_image_source, selected_image_path,
                         selected_audio_source, selected_audio_path, dpg.get_value("input_video_duration"), output_file_name)
-    renderer.render()
+    result = renderer.render()
     print("Rendering complete!")
-    dpg.set_value("ui_status_text", "Rendering complete!")
+    # TODO status text probably needs to be more robust/verbose
+    if (result == "OK"):
+        dpg.set_value("ui_status_text", "Rendering complete!")
+    else:
+        dpg.set_value("ui_status_text", result)
 
     # delete downloaded files if selected
     if (dpg.get_value("ui_delete_downloads")):
@@ -106,8 +111,12 @@ def run():
         with dpg.collapsing_header(label="Run", default_open=True):
             dpg.add_button(label="Run", callback=render_video,
                            width=250, height=50)
-            # TODO figure this out
+            # status text hidden by default
             dpg.add_text("Rendering...", tag="ui_status_text", show=False)
+
+        dpg.add_text("Found a bug? Have a feature request?")
+        dpg.add_button(label="Submit them here!", callback=lambda: webbrowser.open(
+            "https://github.com/NateWebber/EasyScore/issues"))
 
     dpg.setup_dearpygui()
     dpg.show_viewport()

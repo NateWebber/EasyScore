@@ -1,5 +1,6 @@
 from moviepy.editor import *
 from pytube import YouTube
+import pytube.exceptions
 from es_enums import AudioSource, ImageSource
 import os
 import shutil
@@ -40,6 +41,11 @@ class Renderer:
                 print(
                     f"Error: encountered unexpected image source type {self.image_source_type}")
 
+        if image_clip == None:
+            return ("Error retrieving image. Double check URL and try again.")
+        if type(image_clip) == str:
+            return image_clip
+
         # prepare audio clip
         match(self.audio_source_type):
             case AudioSource.LOCAL:
@@ -50,6 +56,12 @@ class Renderer:
                 print(
                     f"Error: encountered unexpected audio source type {self.audio_source_type}")
 
+        if audio_clip == None:
+            return ("Error retrieving audio. Double check URL and try again.")
+        if type(audio_clip) == str:
+            return audio_clip
+        
+
         # trim and render
         if (audio_clip.duration < int(self.video_length)):
             print("Audio is shorter than requested duration, setting to maximum duration")
@@ -59,6 +71,7 @@ class Renderer:
         final_clip = image_clip.set_duration(self.video_length)
         final_clip = final_clip.resize(width=800)
         final_clip.write_videofile(f"{self.output_name}.mp4", 1)
+        return "OK"
 
     def fetch_image_url(self) -> ImageClip:
         if (not os.path.exists(self.DOWNLOAD_FOLDER)):
@@ -68,7 +81,11 @@ class Renderer:
         image_file_name = self.image_source_path.split("/")[-1]
         print(f"IMAGE_FILE_NAME: {image_file_name}")
 
-        res = requests.get(self.image_source_path, stream=True)
+        try:
+            res = requests.get(self.image_source_path, stream=True)
+        except requests.exceptions.MissingSchema:
+            return ("Invalid image URL. Please double check URL and try again.")
+
         if (res.status_code == 200):
             with open(f"{self.DOWNLOAD_FOLDER}/{image_file_name}", "wb") as image_file:
                 shutil.copyfileobj(res.raw, image_file)
@@ -80,8 +97,10 @@ class Renderer:
     def fetch_audio_youtube(self) -> AudioClip:
         if (not os.path.exists(self.DOWNLOAD_FOLDER)):
             os.mkdir(self.DOWNLOAD_FOLDER)
-
-        yt = YouTube(self.audio_source_path)
+        try:
+            yt = YouTube(self.audio_source_path)
+        except pytube.exceptions.RegexMatchError:
+            return "Invalid YouTube URL. Please double check URL and try again."
         video = yt.streams.filter(only_audio=True).first()
         yt_audio = video.download(output_path=self.DOWNLOAD_FOLDER)
         print(f"SAVED AUDIO PATH: {yt_audio}")
@@ -93,4 +112,3 @@ class Renderer:
 
     def fetch_audio_local(self) -> AudioClip:
         return AudioFileClip(self.audio_source_path)
-
