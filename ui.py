@@ -1,4 +1,6 @@
 import dearpygui.dearpygui as dpg
+from renderer import Renderer
+from es_enums import AudioSource, ImageSource
 
 """
 Gather user-input parameters and pass them to the "backend" to run the rendering process
@@ -6,7 +8,10 @@ Gather user-input parameters and pass them to the "backend" to run the rendering
 
 
 def render_video():
-    print("someday I will actually render the video")
+    renderer = Renderer(ImageSource.INET_URL, dpg.get_value("input_image_remote_url"),
+                        AudioSource.YOUTUBE, dpg.get_value("input_audio_remote_url"), dpg.get_value("input_video_duration"))
+    renderer.render()
+    print("did i do it?")
 
 
 dpg.create_context()
@@ -33,12 +38,15 @@ with dpg.window(tag="Main"):
         dpg.add_text("Extra stuff here")
         # "options/extras" will include:
         # video length
+        dpg.add_input_int(label="Video Duration (seconds)",
+                          default_value=15, min_value=0, max_value=9999, tag="input_video_duration")
         # choosing where audio starts from
         # choosing to delete downloads after process is complete
         # other things that i'm forgetting at the moment
 
     with dpg.collapsing_header(label="Run", default_open=True):
         dpg.add_button(label="Run", callback=render_video)
+        dpg.add_text("Eventually status text goes here", tag="ui_status_text")
 
 dpg.setup_dearpygui()
 dpg.show_viewport()
