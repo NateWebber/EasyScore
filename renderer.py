@@ -94,12 +94,3 @@ class Renderer:
     def fetch_audio_local(self) -> AudioClip:
         return AudioFileClip(self.audio_source_path)
 
-
-"""# allow user to delete downloaded files
-if (audio_source_choice == "2" or image_source_choice == "2"):
-    delete_downloads = input(
-        f"Delete temporary downloads? (can be found in '{DOWNLOAD_FOLDER}' directory) [Y/n]")
-    if (not ((delete_downloads == "n") or (delete_downloads == "N"))):
-        shutil.rmtree(DOWNLOAD_FOLDER)
-
-print("Your video is done!")"""

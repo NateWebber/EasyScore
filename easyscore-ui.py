@@ -79,7 +79,6 @@ def run():
 
         # Options/Extras Section
         with dpg.collapsing_header(label="Options/Extras", default_open=True):
-            dpg.add_text("Extra stuff here")
             # video length (may need to reconsider max value in future)
             dpg.add_input_int(label="Video Duration (seconds)",
                             default_value=15, min_value=0, max_value=9999, tag="input_video_duration")
