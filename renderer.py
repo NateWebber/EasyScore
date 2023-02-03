@@ -24,7 +24,7 @@ class Renderer:
         self.audio_source_path = new_audio_source
         self.video_length = new_vid_length
         self.output_name = new_out_name
-        #self.render()
+        # self.render()
 
     def render(self):
         image_clip = None
@@ -33,7 +33,7 @@ class Renderer:
         # prepare image clip
         match(self.image_source_type):
             case ImageSource.LOCAL:
-                print("detected local image source")
+                image_clip = self.fetch_image_local()
             case ImageSource.INET_URL:
                 image_clip = self.fetch_image_url()
             case _:
@@ -43,7 +43,7 @@ class Renderer:
         # prepare audio clip
         match(self.audio_source_type):
             case AudioSource.LOCAL:
-                print("detected local audio source")
+                audio_clip = self.fetch_audio_local()
             case AudioSource.YOUTUBE:
                 audio_clip = self.fetch_audio_youtube()
             case _:
@@ -54,7 +54,7 @@ class Renderer:
         if (audio_clip.duration < int(self.video_length)):
             print("Audio is shorter than requested duration, setting to maximum duration")
             self.video_length = audio_clip.duration
-        
+
         image_clip.audio = audio_clip
         final_clip = image_clip.set_duration(self.video_length)
         final_clip = final_clip.resize(width=800)
@@ -87,6 +87,12 @@ class Renderer:
         print(f"SAVED AUDIO PATH: {yt_audio}")
 
         return AudioFileClip(yt_audio)
+
+    def fetch_image_local(self) -> ImageClip:
+        return ImageClip(self.image_source_path)
+
+    def fetch_audio_local(self) -> AudioClip:
+        return AudioFileClip(self.audio_source_path)
 
 
 """# allow user to delete downloaded files
