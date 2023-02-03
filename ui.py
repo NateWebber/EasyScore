@@ -1,3 +1,5 @@
+import shutil
+import os
 import dearpygui.dearpygui as dpg
 from renderer import Renderer
 from es_enums import AudioSource, ImageSource
@@ -32,6 +34,11 @@ def render_video():
                         selected_audio_source, selected_audio_path, dpg.get_value("input_video_duration"))
     renderer.render()
     print("Rendering complete!")
+
+    #delete downloaded files if the user wishes
+    if (dpg.get_value("ui_delete_downloads")):
+        if (os.path.exists("dl")):
+            shutil.rmtree("dl")
 
 
 dpg.create_context()
@@ -72,17 +79,19 @@ with dpg.window(tag="Main"):
     # Options/Extras Section
     with dpg.collapsing_header(label="Options/Extras", default_open=True):
         dpg.add_text("Extra stuff here")
-        # "options/extras" will include:
         # video length (may need to reconsider max value in future)
         dpg.add_input_int(label="Video Duration (seconds)",
                           default_value=15, min_value=0, max_value=9999, tag="input_video_duration")
         # choosing where audio starts from
         # choosing to delete downloads after process is complete
+        dpg.add_checkbox(label="Remove downloaded files after rendering? (Recommended)",
+                         tag="ui_delete_downloads", default_value=True)
         # other things that i'm forgetting at the moment
 
     # Run Section
     with dpg.collapsing_header(label="Run", default_open=True):
-        dpg.add_button(label="Run", callback=render_video, width=250, height=50)
+        dpg.add_button(label="Run", callback=render_video,
+                       width=250, height=50)
         dpg.add_text("Eventually status text goes here", tag="ui_status_text")
 
 dpg.setup_dearpygui()
