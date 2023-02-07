@@ -17,15 +17,18 @@ class Renderer:
 
     video_length = 15
     output_name = "out"
+    audio_start_time = 0
 
-    def __init__(self, new_img_type, new_img_source, new_audio_type, new_audio_source, new_vid_length, new_out_name="out"):
+    def __init__(self, new_img_type, new_img_source, new_audio_type, new_audio_source, new_vid_length, new_out_name, new_audio_start_time):
         self.image_source_type = new_img_type
         self.image_source_path = new_img_source
         self.audio_source_type = new_audio_type
         self.audio_source_path = new_audio_source
         self.video_length = new_vid_length
         self.output_name = new_out_name
+        self.audio_start_time = new_audio_start_time
         # self.render()
+        
 
     def render(self):
         image_clip = None
@@ -61,6 +64,8 @@ class Renderer:
         if type(audio_clip) == str:
             return audio_clip
         
+        #trim start
+        audio_clip = self.trim_audio_start(audio_clip)
 
         # trim and render
         if (audio_clip.duration < int(self.video_length)):
@@ -104,7 +109,6 @@ class Renderer:
         video = yt.streams.filter(only_audio=True).first()
         yt_audio = video.download(output_path=self.DOWNLOAD_FOLDER)
         print(f"SAVED AUDIO PATH: {yt_audio}")
-
         return AudioFileClip(yt_audio)
 
     def fetch_image_local(self) -> ImageClip:
@@ -112,3 +116,7 @@ class Renderer:
 
     def fetch_audio_local(self) -> AudioClip:
         return AudioFileClip(self.audio_source_path)
+    
+    def trim_audio_start(self, audio_clip: AudioFileClip):
+        trimmed = audio_clip.cutout(0, self.audio_start_time)
+        return trimmed

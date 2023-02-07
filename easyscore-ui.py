@@ -40,7 +40,7 @@ def render_video():
 
     # instantiate renderer and render video
     renderer = Renderer(selected_image_source, selected_image_path,
-                        selected_audio_source, selected_audio_path, dpg.get_value("input_video_duration"), output_file_name)
+                        selected_audio_source, selected_audio_path, dpg.get_value("input_video_duration"), output_file_name, dpg.get_value("input_audio_start_time"))
     result = renderer.render()
     print("Rendering complete!")
     # TODO status text probably needs to be more robust/verbose
@@ -98,6 +98,9 @@ def run():
             dpg.add_input_int(default_value=15, min_value=0,
                               max_value=9999, tag="input_video_duration")
             # TODO choosing where audio starts from
+            dpg.add_text("Trim Start of Audio to (seconds):")
+            dpg.add_input_int(default_value=0, min_value=0,
+                              max_value=9999, tag="input_audio_start_time")
             # choose output name
             dpg.add_text("Output filename:")
             dpg.add_input_text(
